@@ -64,9 +64,8 @@ public class Player : MonoBehaviour
     
     public void Damage()
     {
-        _lives--;
+        _lives --;
 
-        //check if dead
         if (_lives < 1 ) 
         { 
             Destroy(this.gameObject);
