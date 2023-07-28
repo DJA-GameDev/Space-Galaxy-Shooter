@@ -28,8 +28,12 @@ public class Player : MonoBehaviour
     [SerializeField]
     private int _score;
 
+    [SerializeField]
+    private float _damageDelay = 1.0f;
+
     private bool _isTripleShotActive = false;
     private bool _isShieldActive = false;
+    private bool _isDamaged = false;   
 
     [SerializeField]
     private AudioClip _laserSoundClip;
@@ -119,14 +123,18 @@ public class Player : MonoBehaviour
             _shieldVisualizer.SetActive(false);
             return;
         }
-        
-        _lives --;
+
+        if (_isDamaged == false)
+        {
+            _isDamaged = true;
+            StartCoroutine(DamageDelay());
+            _lives--;
+        }
 
         if (_lives == 2)
         {
             _leftEngine.SetActive(true);
         }
-        
         else if (_lives == 1)
         {
             _rightEngine.SetActive(true);
@@ -139,6 +147,13 @@ public class Player : MonoBehaviour
             _spawnManager.OnPlayerDeath();
             Destroy(this.gameObject);
         }
+ 
+    }
+
+    private IEnumerator DamageDelay()
+    {
+        yield return new WaitForSeconds(_damageDelay);
+        _isDamaged = false;
     }
 
     public void TripleShotActive()
