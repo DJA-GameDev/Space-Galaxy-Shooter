@@ -14,8 +14,8 @@ public class Enemy : MonoBehaviour
     private Animator _anim;
     private AudioSource _audioSource;
 
-    private float _fireRate = 3.0f;
-    private float _canFire = -1.0f;
+    private float _enemyFireRate = 3.0f;
+    private float _enemyCanFire = -1.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -30,10 +30,10 @@ public class Enemy : MonoBehaviour
     {
         CalculateMovement();
 
-        if (Time.time > _canFire)
+        if (Time.time > _enemyCanFire)
         {
-            _fireRate = Random.Range(3.0f, 7.0f);
-            _canFire = Time.time + _fireRate;
+            _enemyFireRate = Random.Range(3.0f, 7.0f);
+            _enemyCanFire = Time.time + _enemyFireRate;
             GameObject enemyLaser = Instantiate(_laserPrefab, transform.position, Quaternion.identity);
             Laser[] lasers = enemyLaser.GetComponentsInChildren<Laser>();
 

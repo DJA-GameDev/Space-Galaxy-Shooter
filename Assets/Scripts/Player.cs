@@ -6,6 +6,8 @@ public class Player : MonoBehaviour
 {
     [SerializeField]
     private float _speed = 3.5f;
+    [SerializeField]
+    private float _thrustSpeed = 1.0f;
     private float _speedMultiplier = 2f;
     [SerializeField]
     private GameObject _laserPrefab;
@@ -87,6 +89,15 @@ public class Player : MonoBehaviour
         
         transform.Translate(_speed * Time.deltaTime * direction);
         transform.position = new Vector3(transform.position.x, Mathf.Clamp(transform.position.y, -3.8f, 0), 0);
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            _speed = _speed + _thrustSpeed;
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            _speed = _speed - _thrustSpeed;
+        }
 
         if (transform.position.x >= 11.3f)
         {
