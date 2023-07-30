@@ -14,8 +14,12 @@ public class Enemy : MonoBehaviour
     private Animator _anim;
     private AudioSource _audioSource;
 
+    [SerializeField]
     private float _enemyFireRate = 3.0f;
+    [SerializeField]
     private float _enemyCanFire = -1.0f;
+
+    private bool _isEnemyAlive = true;
 
     // Start is called before the first frame update
     void Start()
@@ -30,18 +34,18 @@ public class Enemy : MonoBehaviour
     {
         CalculateMovement();
 
-        if (Time.time > _enemyCanFire)
+        if (Time.time > _enemyCanFire && _isEnemyAlive == true)
         {
-            _enemyFireRate = Random.Range(3.0f, 7.0f);
-            _enemyCanFire = Time.time + _enemyFireRate;
             GameObject enemyLaser = Instantiate(_laserPrefab, transform.position, Quaternion.identity);
             Laser[] lasers = enemyLaser.GetComponentsInChildren<Laser>();
+            _enemyFireRate = Random.Range(4.0f, 7.0f);
+            _enemyCanFire = Time.time + _enemyFireRate;
 
             for (int i = 0; i < lasers.Length; i++)
             {
                 lasers[i].AssignEnemyLaser();
             }
-            
+
         }
     }
 
@@ -62,6 +66,8 @@ public class Enemy : MonoBehaviour
         {
             Player player = other.transform.GetComponent<Player>();
 
+            _isEnemyAlive = false;
+
             if (player != null) 
             {
                 player.Damage();
@@ -80,6 +86,7 @@ public class Enemy : MonoBehaviour
 
             if (laser.IsEnemyLaser() == false)
             {
+                _isEnemyAlive = false;
 
                 Destroy(other.gameObject);
 

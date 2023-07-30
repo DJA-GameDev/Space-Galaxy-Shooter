@@ -68,6 +68,7 @@ public class Laser : MonoBehaviour
             if (player != null) 
             {
                 player.Damage();
+                Destroy(this.gameObject);
             }
                         
         }

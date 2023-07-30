@@ -7,8 +7,9 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _speed = 3.5f;
     [SerializeField]
-    private float _thrustSpeed = 1.0f;
-    private float _speedMultiplier = 2f;
+    private float _thrustSpeed = 1.5f;
+    [SerializeField]
+    private float _powerupSpeed = 5.0f;
     [SerializeField]
     private GameObject _laserPrefab;
     [SerializeField]
@@ -28,10 +29,12 @@ public class Player : MonoBehaviour
     private GameObject _leftEngine, _rightEngine;
 
     [SerializeField]
-    private int _score;
+    private int _shieldLife = 3;
+    [SerializeField]
+    private SpriteRenderer _shieldRenderer;
 
     [SerializeField]
-    private float _damageDelay = 1.0f;
+    private int _score;
 
     private bool _isTripleShotActive = false;
     private bool _isShieldActive = false;
@@ -48,6 +51,7 @@ public class Player : MonoBehaviour
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
         _uiManager = GameObject.Find("Canvas").GetComponent<UIManager>();
         _audioSource = GetComponent<AudioSource>();
+        _shieldRenderer = this.transform.Find("Shields").GetComponent<SpriteRenderer>();
 
         if ( _spawnManager == null)
         {
@@ -92,11 +96,11 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            _speed = _speed + _thrustSpeed;
+            _speed = _speed += _thrustSpeed;
         }
         else if (Input.GetKeyUp(KeyCode.LeftShift))
         {
-            _speed = _speed - _thrustSpeed;
+            _speed = _speed -= _thrustSpeed;
         }
 
         if (transform.position.x >= 11.3f)
@@ -128,18 +132,32 @@ public class Player : MonoBehaviour
     public void Damage()
     {
        
-        if (_isShieldActive == true) 
+        if (_isShieldActive == true && _shieldLife >= 1) 
         {
-            _isShieldActive = false;
-            _shieldVisualizer.SetActive(false);
+            _shieldLife--;
+
+            switch (_shieldLife)
+            {
+                case 0:
+                    _isShieldActive = false;
+                    _shieldVisualizer.SetActive(false);
+                    break;
+                case 1:
+                    _shieldRenderer.color = Color.red;
+                    break;
+                case 2:
+                    _shieldRenderer.color = Color.blue;
+                    break;
+            }
+
             return;
         }
 
-        if (_isDamaged == false)
+        if(_isDamaged == false)
         {
             _isDamaged = true;
-            StartCoroutine(DamageDelay());
             _lives--;
+            _isDamaged = false;
         }
 
         if (_lives == 2)
@@ -158,13 +176,7 @@ public class Player : MonoBehaviour
             _spawnManager.OnPlayerDeath();
             Destroy(this.gameObject);
         }
- 
-    }
 
-    private IEnumerator DamageDelay()
-    {
-        yield return new WaitForSeconds(_damageDelay);
-        _isDamaged = false;
     }
 
     public void TripleShotActive()
@@ -181,20 +193,22 @@ public class Player : MonoBehaviour
 
     public void SpeedBoostActive()
     {
-        _speed *= _speedMultiplier;
+        _speed += _powerupSpeed;
         StartCoroutine(SpeedBoostPowerDown());
     }
 
     IEnumerator SpeedBoostPowerDown()
     {
         yield return new WaitForSeconds(5f);
-        _speed /= _speedMultiplier;
+        _speed -= _powerupSpeed;
     }
 
     public void ShieldActive()
     {
         _isShieldActive = true;
         _shieldVisualizer.SetActive(true);
+        _shieldLife = 3;
+        _shieldRenderer.color = Color.white;
     }
 
     public void AddScore(int points)
