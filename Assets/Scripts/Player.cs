@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro.Examples;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -35,6 +36,8 @@ public class Player : MonoBehaviour
 
     [SerializeField]
     private int _score;
+    [SerializeField]
+    private int _currentAmmo = 15;
 
     private bool _isTripleShotActive = false;
     private bool _isShieldActive = false;
@@ -42,6 +45,8 @@ public class Player : MonoBehaviour
 
     [SerializeField]
     private AudioClip _laserSoundClip;
+    [SerializeField]
+    private AudioClip _noAmmoSound;
     private AudioSource _audioSource;
 
     // Start is called before the first frame update
@@ -80,6 +85,12 @@ public class Player : MonoBehaviour
         CalculateMovement();
         if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire)
         {
+            if ( _currentAmmo == 0 ) 
+            {
+                AudioSource.PlayClipAtPoint(_noAmmoSound, transform.position);
+                return;
+            }
+
             FireLaser();
         }
     }
@@ -116,6 +127,7 @@ public class Player : MonoBehaviour
     public void FireLaser()
     {
         _canFire = Time.time + _fireRate;
+        AmmoCount(-1);
 
         if (_isTripleShotActive == true)
         {
@@ -127,6 +139,20 @@ public class Player : MonoBehaviour
         }
 
         _audioSource.Play();
+    }
+
+    public void AmmoCount(int shots)
+    {
+        if (shots >= _currentAmmo)
+        {
+             _currentAmmo = 15;
+        }
+        else
+        {
+            _currentAmmo += shots;
+        }
+
+        _uiManager.UpdateAmmo(_currentAmmo);
     }
     
     public void Damage()
@@ -171,7 +197,7 @@ public class Player : MonoBehaviour
 
         _uiManager.UpdateLives(_lives);
 
-        if (_lives < 1 ) 
+        if (_lives == 0 ) 
         {
             _spawnManager.OnPlayerDeath();
             Destroy(this.gameObject);
