@@ -27,6 +27,8 @@ public class Player : MonoBehaviour
     [SerializeField]
     private UIManager _uiManager;
     [SerializeField]
+    private CameraShake _cameraShake;
+    [SerializeField]
     private GameObject _leftEngine, _rightEngine;
 
     [SerializeField]
@@ -57,6 +59,7 @@ public class Player : MonoBehaviour
         _uiManager = GameObject.Find("Canvas").GetComponent<UIManager>();
         _audioSource = GetComponent<AudioSource>();
         _shieldRenderer = this.transform.Find("Shields").GetComponent<SpriteRenderer>();
+        _cameraShake = GameObject.Find("Main Camera").GetComponent<CameraShake>();
 
         if ( _spawnManager == null)
         {
@@ -154,7 +157,26 @@ public class Player : MonoBehaviour
 
         _uiManager.UpdateAmmo(_currentAmmo);
     }
-    
+
+    public void RestoreLives()
+    {
+        if (_lives < 3)
+        {
+            _lives++;
+
+            if (_lives == 3)
+            {
+                _leftEngine.SetActive(false);
+            }
+            else if (_lives == 2)
+            {
+                _rightEngine.SetActive(false);
+            }
+
+            _uiManager.UpdateLives(_lives);
+        }
+    }
+
     public void Damage()
     {
        
@@ -183,6 +205,7 @@ public class Player : MonoBehaviour
         {
             _isDamaged = true;
             _lives--;
+            _cameraShake.StartCameraShake();
             _isDamaged = false;
         }
 
