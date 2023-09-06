@@ -80,7 +80,7 @@ public class Enemy : MonoBehaviour
             Destroy(this.gameObject, 2.5f);
         }
 
-        if (other.tag == "Laser")
+        if (other.tag == "Laser" || other.tag == "SuperLaser")
         {
             Laser laser = other.transform.GetComponent<Laser>();
 
@@ -88,7 +88,10 @@ public class Enemy : MonoBehaviour
             {
                 _isEnemyAlive = false;
 
-                Destroy(other.gameObject);
+                if (other.tag == "Laser")
+                { 
+                    Destroy(other.gameObject);
+                }
 
                 if (_player != null)
                 {

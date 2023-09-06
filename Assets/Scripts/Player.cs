@@ -2,15 +2,12 @@ using System.Collections;
 using TMPro.Examples;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
     [SerializeField]
     private float _speed = 3.5f;
-    [SerializeField]
-    private float _thrustSpeed = 1.5f;
-    [SerializeField]
-    private float _powerupSpeed = 5.0f;
     [SerializeField]
     private GameObject _laserPrefab;
     [SerializeField]
@@ -32,6 +29,18 @@ public class Player : MonoBehaviour
     private GameObject _leftEngine, _rightEngine;
 
     [SerializeField]
+    private GameObject _superLaserPrefab;
+    private bool _isSuperLaserActive = false;
+    
+
+    [SerializeField]
+    private Slider _thrustGauge;
+    [SerializeField]
+    private float _maxFuel = 100.0f;
+    [SerializeField]
+    private bool _isThrusting = false;
+
+    [SerializeField]
     private int _shieldLife = 3;
     [SerializeField]
     private SpriteRenderer _shieldRenderer;
@@ -41,6 +50,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private int _currentAmmo = 15;
 
+    private bool _isSpeedBoostActive = false;
     private bool _isTripleShotActive = false;
     private bool _isShieldActive = false;
     private bool _isDamaged = false;   
@@ -60,6 +70,7 @@ public class Player : MonoBehaviour
         _audioSource = GetComponent<AudioSource>();
         _shieldRenderer = this.transform.Find("Shields").GetComponent<SpriteRenderer>();
         _cameraShake = GameObject.Find("Main Camera").GetComponent<CameraShake>();
+        _thrustGauge = GameObject.Find("Thruster_Slider").GetComponent<Slider>();
 
         if ( _spawnManager == null)
         {
@@ -79,6 +90,12 @@ public class Player : MonoBehaviour
         {
             _audioSource.clip = _laserSoundClip;
         }
+
+        if (_thrustGauge == null) 
+        {
+            Debug.LogError("Thrust Gauge Slider is NULL");
+        }
+
     }
 
     // Update is called once per frame
@@ -86,7 +103,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         CalculateMovement();
-        if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire)
+        if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire && _isSuperLaserActive == false)
         {
             if ( _currentAmmo == 0 ) 
             {
@@ -96,6 +113,8 @@ public class Player : MonoBehaviour
 
             FireLaser();
         }
+
+        _thrustGauge.value = _maxFuel;
     }
 
     void CalculateMovement()
@@ -110,11 +129,13 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            _speed = _speed += _thrustSpeed;
+            StartThrusting();
+            StartCoroutine(ThrustActive());
         }
         else if (Input.GetKeyUp(KeyCode.LeftShift))
         {
-            _speed = _speed -= _thrustSpeed;
+            StopThrusting();
+            StartCoroutine(ThrustRegen());
         }
 
         if (transform.position.x >= 11.3f)
@@ -124,6 +145,45 @@ public class Player : MonoBehaviour
         else if (transform.position.x <= -11.3f)
         {
             transform.position = new Vector3(11.3f, transform.position.y, 0);
+        }
+
+    }
+    public void StartThrusting()
+    {
+        _isThrusting = true;
+        if (_isSpeedBoostActive == true)
+        {
+            _speed = 12.0f;
+        }
+        else
+        {
+            _speed = 5.5f;
+        }
+    }
+
+    public void StopThrusting() 
+    {
+        _isThrusting = false;
+        if (_isSpeedBoostActive == true)
+        {
+            _speed = 10.0f;
+        }
+        else
+        {
+            _speed = 3.5f;
+        }
+    }
+
+    public void UpdateThrustGauge(float currentFuel)
+    {
+        if (_maxFuel <= 0)
+        {
+            StopThrusting();
+        }
+
+        if (_maxFuel <= 100)
+        { 
+            _maxFuel += currentFuel;
         }
     }
 
@@ -240,16 +300,51 @@ public class Player : MonoBehaviour
         _isTripleShotActive = false;
     }
 
+    public void SuperLaserActive()
+    {
+        _isSuperLaserActive = true; 
+        GameObject _superLas = Instantiate(_superLaserPrefab, transform.position + new Vector3(0, 6.5f, 0), Quaternion.identity);
+        _superLas.transform.parent = transform;
+        Destroy(_superLas, 5.0f);
+        StartCoroutine(SuperLaserPowerDown());
+    }
+
+    IEnumerator SuperLaserPowerDown()
+    {
+        yield return new WaitForSeconds(5.0f);
+        _isSuperLaserActive = false;    
+    }
+
     public void SpeedBoostActive()
     {
-        _speed += _powerupSpeed;
+        _isSpeedBoostActive = true;
+        _speed = 10.0f;
         StartCoroutine(SpeedBoostPowerDown());
     }
 
     IEnumerator SpeedBoostPowerDown()
     {
         yield return new WaitForSeconds(5f);
-        _speed -= _powerupSpeed;
+        _speed = 3.5f;
+        _isSpeedBoostActive = false;
+    }
+
+    IEnumerator ThrustActive()
+    {
+        while (_isThrusting == true)
+        {
+            UpdateThrustGauge(-2.0f);
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+
+    IEnumerator ThrustRegen() 
+    {
+        while (_isThrusting == false && _maxFuel < 100.0f)
+        {
+            yield return new WaitForSeconds(0.1f);
+            UpdateThrustGauge(1.0f);
+        }
     }
 
     public void ShieldActive()

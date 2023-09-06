@@ -5,8 +5,9 @@ using UnityEngine;
 public class Laser : MonoBehaviour
 {
     [SerializeField]
-    private float _speed= 8.0f;
+    private float _laserSpeed= 8.0f;
     private bool _isEnemyLaser = false;
+
 
     // Update is called once per frame
     void Update()
@@ -23,7 +24,7 @@ public class Laser : MonoBehaviour
 
     void MoveUp()
     {
-        transform.Translate(Vector3.up * _speed * Time.deltaTime);
+        transform.Translate(Vector3.up * _laserSpeed * Time.deltaTime);
 
         if (transform.position.y > 8f)
         {
@@ -37,7 +38,7 @@ public class Laser : MonoBehaviour
 
     void MoveDown()
     {
-        transform.Translate(Vector3.down * _speed * Time.deltaTime);
+        transform.Translate(Vector3.down * _laserSpeed * Time.deltaTime);
 
         if (transform.position.y < -8f)
         {
@@ -68,9 +69,24 @@ public class Laser : MonoBehaviour
             if (player != null) 
             {
                 player.Damage();
+                if (transform.parent != null)
+                {
+                    Destroy(transform.parent.gameObject);
+                }
+
                 Destroy(this.gameObject);
+                
             }
                         
+        }
+
+        if (other.tag == "SuperLaser" && _isEnemyLaser == true)
+        {
+            if (transform.parent != null)
+            {
+                Destroy(transform.parent.gameObject);
+            }
+            Destroy(this.gameObject);
         }
     }
 }
