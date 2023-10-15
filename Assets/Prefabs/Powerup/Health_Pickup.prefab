@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 7592225193086054348}
   - component: {fileID: 827240884500510247}
   - component: {fileID: 1805323376264348905}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Health_Pickup
-  m_TagString: Untagged
+  m_TagString: Powerup
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -193,5 +193,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 3
-  powerupID: 4
+  powerupID: 6
+  _magnetSpeed: 5
+  Player: {fileID: 0}
   _clip: {fileID: 8300000, guid: 5ee343246919d2b4bba63ae629e95494, type: 3}

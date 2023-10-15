@@ -8,6 +8,9 @@ TagManager:
   - Enemy
   - Spawn_Manager
   - SuperLaser
+  - Powerup
+  - Enemy_Laser
+  - Missile
   layers:
   - Default
   - TransparentFX
@@ -16,9 +19,9 @@ TagManager:
   - Water
   - UI
   - Post Processing
-  - 
-  - 
-  - 
+  - Player
+  - Powerup
+  - Laser
   - 
   - 
   - 

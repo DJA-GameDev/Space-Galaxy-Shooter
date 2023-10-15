@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 6462153156830439633}
   - component: {fileID: 7152416733406160310}
   - component: {fileID: 1174721390998428313}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Super_Laser_Powerup
-  m_TagString: Untagged
+  m_TagString: Powerup
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -149,6 +149,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _speed: 3
   powerupID: 5
+  _magnetSpeed: 5
+  Player: {fileID: 0}
   _clip: {fileID: 8300000, guid: 5ee343246919d2b4bba63ae629e95494, type: 3}
 --- !u!61 &1174721390998428313
 BoxCollider2D:

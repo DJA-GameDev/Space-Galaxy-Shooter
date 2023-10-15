@@ -11,7 +11,17 @@ public class Powerup : MonoBehaviour
     private int powerupID;
 
     [SerializeField]
+    private float _magnetSpeed = 1.0f;
+    [SerializeField]
+    private GameObject Player;
+
+    [SerializeField]
     private AudioClip _clip;
+
+    private void Start()
+    {
+        Player = GameObject.FindGameObjectWithTag("Player");
+    }
 
     // Update is called once per frame
     void Update()
@@ -23,6 +33,16 @@ public class Powerup : MonoBehaviour
             Destroy(this.gameObject);
         }
 
+        if (Input.GetKey(KeyCode.C))
+        {
+            Magnet();
+        }
+
+    }
+
+    private void Magnet()
+    {
+        transform.position = Vector3.Lerp(this.transform.position, Player.transform.position, _magnetSpeed * Time.deltaTime);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -53,18 +73,24 @@ public class Powerup : MonoBehaviour
                         player.AmmoCount(15);
                         break;
                     case 4:
-                        player.RestoreLives();
+                        player.SlowSpeedActive();
                         break;
                     case 5:
                         player.SuperLaserActive();
+                        break;
+                    case 6:
+                        player.RestoreLives();
+                        break;
+                    case 7:
+                        player.MissileReady();
                         break;
                     default:
                         Debug.Log("Default Value");
                         break;
                 }
             }
-       
         }
+
     }
 
 }

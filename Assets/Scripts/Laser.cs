@@ -40,7 +40,7 @@ public class Laser : MonoBehaviour
     {
         transform.Translate(Vector3.down * _laserSpeed * Time.deltaTime);
 
-        if (transform.position.y < -8f)
+        if (transform.position.y < -8f || transform.position.y > 8f)
         {
             if (transform.parent != null)
             {
@@ -69,6 +69,7 @@ public class Laser : MonoBehaviour
             if (player != null) 
             {
                 player.Damage();
+
                 if (transform.parent != null)
                 {
                     Destroy(transform.parent.gameObject);
@@ -78,6 +79,22 @@ public class Laser : MonoBehaviour
                 
             }
                         
+        }
+
+        if (other.tag == "Powerup" && _isEnemyLaser == true)
+        {
+            Powerup powerup = other.GetComponent<Powerup>();
+
+            if (powerup != null) 
+            {
+                Destroy(other.gameObject);
+
+                if (transform.parent != null)
+                {
+                    Destroy(transform.parent.gameObject);
+                }
+                Destroy(this.gameObject);
+            }
         }
 
         if (other.tag == "SuperLaser" && _isEnemyLaser == true)

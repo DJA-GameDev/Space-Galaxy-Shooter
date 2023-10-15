@@ -17,6 +17,12 @@ public class UIManager : MonoBehaviour
     private TMP_Text _restartText;
     [SerializeField]
     private TMP_Text _ammoText;
+
+    [SerializeField]
+    private TMP_Text[] _waves; 
+
+    private int _currentAmmo = 15;
+    private int _maxAmmo = 15;
     
     private GameManager _gameManager;
 
@@ -24,9 +30,10 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         _scoreText.text = "Score: " + 0;
-        _ammoText.text = "Ammo: " + 15;
+        _ammoText.text = "Ammo: " + _currentAmmo + "/" + _maxAmmo;
         _gameOverText.gameObject.SetActive(false);
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
+        SetWavePos();
 
         if (_gameManager == null)
         {
@@ -55,9 +62,40 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void UpdateAmmo(int playerAmmo)
+    public void UpdateAmmo(int playerAmmo, int _maxAmmo)
     {
-        _ammoText.text = "Ammo: " + playerAmmo.ToString();
+        _ammoText.text = "Ammo: " + playerAmmo.ToString() + "/" + _maxAmmo;
+    }
+
+    private void SetWavePos()
+    {
+        for (int i = 0; i < _waves.Length; i++) 
+        {
+            _waves[i].gameObject.SetActive(false);
+        }
+    }
+
+    public void WaveOneUI()
+    {
+        _waves[0].gameObject.SetActive(true);
+    }
+
+    public void WaveTwoUI() 
+    {
+        _waves[1].gameObject.SetActive(true);
+        _waves[0].gameObject.SetActive(false);
+    }
+
+    public void WaveThreeUI() 
+    {
+        _waves[2].gameObject.SetActive(true);
+        _waves[1].gameObject.SetActive(false);
+    }
+
+    public void WaveFourUI() 
+    {
+        _waves[3].gameObject.SetActive(true);
+        _waves[2].gameObject.SetActive(false);
     }
 
     void GameOverSequence()

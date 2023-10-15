@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Runtime.CompilerServices;
 using TMPro.Examples;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -31,7 +32,11 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject _superLaserPrefab;
     private bool _isSuperLaserActive = false;
-    
+
+    [SerializeField]
+    private GameObject _missilePrefab;
+    private HomingMissile _missile;
+    private bool _isMissileActive = false;
 
     [SerializeField]
     private Slider _thrustGauge;
@@ -49,11 +54,17 @@ public class Player : MonoBehaviour
     private int _score;
     [SerializeField]
     private int _currentAmmo = 15;
+    [SerializeField]
+    private int _maxAmmo = 15;
 
+    private bool _isSlowSpeedActive = false;
     private bool _isSpeedBoostActive = false;
     private bool _isTripleShotActive = false;
     private bool _isShieldActive = false;
-    private bool _isDamaged = false;   
+    private bool _isDamaged = false;
+
+    [SerializeField]
+    private int _currentKills = 0;
 
     [SerializeField]
     private AudioClip _laserSoundClip;
@@ -71,6 +82,7 @@ public class Player : MonoBehaviour
         _shieldRenderer = this.transform.Find("Shields").GetComponent<SpriteRenderer>();
         _cameraShake = GameObject.Find("Main Camera").GetComponent<CameraShake>();
         _thrustGauge = GameObject.Find("Thruster_Slider").GetComponent<Slider>();
+        _missile = GameObject.Find("Player_Missile").GetComponent<HomingMissile>();
 
         if ( _spawnManager == null)
         {
@@ -114,6 +126,13 @@ public class Player : MonoBehaviour
             FireLaser();
         }
 
+        if (Input.GetKeyDown(KeyCode.F) && _isMissileActive == true)
+        {
+
+            Instantiate(_missilePrefab, transform.position + new Vector3(0, 0.5f, 0), Quaternion.identity);
+            _missile.FireMissile();
+        }
+
         _thrustGauge.value = _maxFuel;
     }
 
@@ -129,12 +148,12 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            StartThrusting();
+            StartThrustBurn();
             StartCoroutine(ThrustActive());
         }
         else if (Input.GetKeyUp(KeyCode.LeftShift))
         {
-            StopThrusting();
+            StopThrustBurn();
             StartCoroutine(ThrustRegen());
         }
 
@@ -148,12 +167,16 @@ public class Player : MonoBehaviour
         }
 
     }
-    public void StartThrusting()
+    public void StartThrustBurn()
     {
         _isThrusting = true;
         if (_isSpeedBoostActive == true)
         {
             _speed = 12.0f;
+        }
+        else if (_isSlowSpeedActive == true)
+        {
+            _speed = 2.0f;
         }
         else
         {
@@ -161,12 +184,16 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void StopThrusting() 
+    public void StopThrustBurn() 
     {
         _isThrusting = false;
         if (_isSpeedBoostActive == true)
         {
             _speed = 10.0f;
+        }
+        else if (_isSlowSpeedActive == true)
+        {
+            _speed = 1.0f;
         }
         else
         {
@@ -178,7 +205,7 @@ public class Player : MonoBehaviour
     {
         if (_maxFuel <= 0)
         {
-            StopThrusting();
+            StopThrustBurn();
         }
 
         if (_maxFuel <= 100)
@@ -206,16 +233,16 @@ public class Player : MonoBehaviour
 
     public void AmmoCount(int shots)
     {
-        if (shots >= _currentAmmo)
+        if (shots >= _maxAmmo)
         {
-             _currentAmmo = 15;
+             _currentAmmo = _maxAmmo;
         }
         else
         {
             _currentAmmo += shots;
         }
 
-        _uiManager.UpdateAmmo(_currentAmmo);
+        _uiManager.UpdateAmmo(_currentAmmo, _maxAmmo);
     }
 
     public void RestoreLives()
@@ -303,9 +330,9 @@ public class Player : MonoBehaviour
     public void SuperLaserActive()
     {
         _isSuperLaserActive = true; 
-        GameObject _superLas = Instantiate(_superLaserPrefab, transform.position + new Vector3(0, 6.5f, 0), Quaternion.identity);
-        _superLas.transform.parent = transform;
-        Destroy(_superLas, 5.0f);
+        GameObject superLas = Instantiate(_superLaserPrefab, transform.position + new Vector3(0, 6.5f, 0), Quaternion.identity);
+        superLas.transform.parent = transform;
+        Destroy(superLas, 5.0f);
         StartCoroutine(SuperLaserPowerDown());
     }
 
@@ -329,6 +356,20 @@ public class Player : MonoBehaviour
         _isSpeedBoostActive = false;
     }
 
+    public void SlowSpeedActive()
+    {
+        _isSlowSpeedActive = true;
+        _speed = 1.0f;
+        StartCoroutine(SlowSpeedPowerDown());
+    }
+
+    IEnumerator SlowSpeedPowerDown()
+    {
+        yield return new WaitForSeconds(5f);
+        _speed = 3.5f;
+        _isSlowSpeedActive = false;
+    }
+
     IEnumerator ThrustActive()
     {
         while (_isThrusting == true)
@@ -347,6 +388,18 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void MissileReady()
+    {
+        _isMissileActive = true;
+        StartCoroutine(MissilePowerDown());
+    }   
+    
+    IEnumerator MissilePowerDown()
+    {
+        yield return new WaitForSeconds(5.0f);
+        _isMissileActive = false;
+    }
+
     public void ShieldActive()
     {
         _isShieldActive = true;
@@ -359,5 +412,29 @@ public class Player : MonoBehaviour
     {
         _score += points;
         _uiManager.UpdateScore(_score);
+    }
+
+    public void EnemyKillCount()
+    {
+        _currentKills++;
+        Debug.Log(_currentKills);
+
+        if(_currentKills == 5)
+        {
+            _spawnManager.WaveTwo();
+            _uiManager.WaveTwoUI();
+        }
+
+        if (_currentKills == 10)
+        {
+            _spawnManager.WaveThree();
+            _uiManager.WaveThreeUI();
+        }
+
+        if (_currentKills == 15)
+        {
+            _spawnManager.BossWave();
+            _uiManager.WaveFourUI();
+        }
     }
 }
