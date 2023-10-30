@@ -17,11 +17,13 @@ public class Player : MonoBehaviour
     private float _canFire = -1.0f;
     [SerializeField]
     private int _lives = 3;
+
     private SpawnManager _spawnManager;
     [SerializeField]
     private GameObject _tripleShotPrefab;
     [SerializeField]
     private GameObject _shieldVisualizer;
+
     [SerializeField]
     private UIManager _uiManager;
     [SerializeField]
@@ -115,6 +117,14 @@ public class Player : MonoBehaviour
     void Update()
     {
         CalculateMovement();
+
+        if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire && _isMissileActive == true)
+        {
+            _canFire = Time.time + _fireRate;
+            Instantiate(_missilePrefab, transform.position + new Vector3(0, 0.5f, 0), Quaternion.identity);
+            _missile.FireMissile();
+        }
+
         if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire && _isSuperLaserActive == false)
         {
             if ( _currentAmmo == 0 ) 
@@ -122,15 +132,7 @@ public class Player : MonoBehaviour
                 AudioSource.PlayClipAtPoint(_noAmmoSound, transform.position);
                 return;
             }
-
             FireLaser();
-        }
-
-        if (Input.GetKeyDown(KeyCode.F) && _isMissileActive == true)
-        {
-
-            Instantiate(_missilePrefab, transform.position + new Vector3(0, 0.5f, 0), Quaternion.identity);
-            _missile.FireMissile();
         }
 
         _thrustGauge.value = _maxFuel;
@@ -165,7 +167,6 @@ public class Player : MonoBehaviour
         {
             transform.position = new Vector3(11.3f, transform.position.y, 0);
         }
-
     }
     public void StartThrustBurn()
     {
@@ -229,6 +230,11 @@ public class Player : MonoBehaviour
         }
 
         _audioSource.Play();
+
+        if (_currentAmmo == 0)
+        {
+            _spawnManager.EmergencyAmmoSpawn();
+        }
     }
 
     public void AmmoCount(int shots)
@@ -244,6 +250,7 @@ public class Player : MonoBehaviour
 
         _uiManager.UpdateAmmo(_currentAmmo, _maxAmmo);
     }
+
 
     public void RestoreLives()
     {
@@ -425,13 +432,13 @@ public class Player : MonoBehaviour
             _uiManager.WaveTwoUI();
         }
 
-        if (_currentKills == 10)
+        if (_currentKills == 15)
         {
             _spawnManager.WaveThree();
             _uiManager.WaveThreeUI();
         }
 
-        if (_currentKills == 15)
+        if (_currentKills == 30)
         {
             _spawnManager.BossWave();
             _uiManager.WaveFourUI();

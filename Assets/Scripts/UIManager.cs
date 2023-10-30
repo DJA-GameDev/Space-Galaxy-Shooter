@@ -17,6 +17,8 @@ public class UIManager : MonoBehaviour
     private TMP_Text _restartText;
     [SerializeField]
     private TMP_Text _ammoText;
+    [SerializeField]
+    private TMP_Text _gameOverWinText;
 
     [SerializeField]
     private TMP_Text[] _waves; 
@@ -31,8 +33,9 @@ public class UIManager : MonoBehaviour
     {
         _scoreText.text = "Score: " + 0;
         _ammoText.text = "Ammo: " + _currentAmmo + "/" + _maxAmmo;
-        _gameOverText.gameObject.SetActive(false);
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
+        _gameOverText.gameObject.SetActive(false);
+        _gameOverWinText.gameObject.SetActive(false);
         SetWavePos();
 
         if (_gameManager == null)
@@ -101,6 +104,15 @@ public class UIManager : MonoBehaviour
     void GameOverSequence()
     {
         _gameManager.GameOver();
+        _gameOverText.gameObject.SetActive(true);
+        StartCoroutine(GameOverFlicker());
+        _restartText.gameObject.SetActive(true);
+    }
+
+    public void GameOverWinner()
+    {
+        _gameManager.GameWinner();
+        _gameOverWinText.gameObject.SetActive(true);
         _gameOverText.gameObject.SetActive(true);
         StartCoroutine(GameOverFlicker());
         _restartText.gameObject.SetActive(true);

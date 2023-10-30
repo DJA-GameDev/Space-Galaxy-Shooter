@@ -35,7 +35,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 12
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2889760483315745046
 SpriteRenderer:
@@ -104,7 +104,7 @@ MonoBehaviour:
   _speed: 2
   _laserPrefab: {fileID: 2079309929877766527, guid: ddc12710d1cc3d64e813518a258b52bd, type: 3}
   _rayDistance: 8
-  _rayCastRad: 0.25
+  _rayCastRad: 1
   _enemyFireRate: 3
   _enemyCanFire: -1
 --- !u!95 &-6128616527751891698
@@ -279,7 +279,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: -1.514988}

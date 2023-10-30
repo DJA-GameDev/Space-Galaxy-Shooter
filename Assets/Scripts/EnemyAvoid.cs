@@ -10,9 +10,11 @@ public class EnemyAvoid : MonoBehaviour
     private GameObject _laserPrefab;
 
     [SerializeField]
-    private float _rayDistance = 6.0f;
+    private float _rayDistance = 8.0f;
     [SerializeField]
     private float _rayCastRad = 1.0f;
+
+    private int _enemyAvoidCount = 0;
 
     private Player _player;
     private Animator _anim;
@@ -41,8 +43,25 @@ public class EnemyAvoid : MonoBehaviour
         if (_isEnemyAlive == true)
         {
             CalculateMovement();
+            FireLaser();
+            AvoidPlayerShot();
         }
 
+    }
+
+    void CalculateMovement()
+    {
+        transform.Translate(Vector3.down * _speed * Time.deltaTime);
+        
+
+        if (transform.position.y < -7.0f)
+        {
+            transform.position = new Vector3(Random.Range(-8.5f, 8.5f), 7.0f, 0);
+        }
+    }
+
+    private void FireLaser()
+    {
         if (Time.time > _enemyCanFire && _isEnemyAlive == true)
         {
             GameObject enemyLaser = Instantiate(_laserPrefab, transform.position, Quaternion.identity);
@@ -54,34 +73,26 @@ public class EnemyAvoid : MonoBehaviour
             {
                 lasers[i].AssignEnemyLaser();
             }
-
-        }
+        }        
     }
 
-    void CalculateMovement()
-    {
-        transform.Translate(Vector3.down * _speed * Time.deltaTime);
-
-        AvoidPlayerShot();
-
-        if (transform.position.y < -7.0f)
-        {
-            transform.position = new Vector3(Random.Range(-8.5f, 8.5f), 7.0f, 0);
-        }
-    }
-
-    void AvoidPlayerShot()
-    {
+    private void AvoidPlayerShot()
+    {   
         RaycastHit2D hit = Physics2D.CircleCast(transform.position, _rayCastRad, Vector2.down, _rayDistance, LayerMask.GetMask("Laser"));
 
         float x = Random.Range(-5.0f, 5.0f);
 
-        if (hit.collider != null)
+        if (hit.collider != null && _enemyAvoidCount < 2)
         {
             if (hit.collider.CompareTag("Laser"))
             {
                 transform.position = new Vector3(x, transform.position.y, 0);
-            }
+                _enemyAvoidCount++;
+            }    
+        }
+        else
+        {
+            return;
         }
     }
 

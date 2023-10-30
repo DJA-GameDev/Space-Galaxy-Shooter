@@ -150,9 +150,9 @@ public class Enemy : MonoBehaviour
                 _player.EnemyKillCount();
             }
 
-            _anim.SetTrigger("OnEnemyDeath");
             _speed = 0;
             _audioSource.Play();
+            _anim.SetTrigger("OnEnemyDeath");
             Destroy(GetComponent<Collider2D>());
             Destroy(this.gameObject, 2.5f);
         }

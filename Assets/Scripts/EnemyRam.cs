@@ -88,6 +88,11 @@ public class EnemyRam : MonoBehaviour
             {
                 _isEnemyAlive = false;
 
+                if (other.tag == "Laser")
+                {
+                    Destroy(other.gameObject);
+                }
+
                 if (_player != null)
                 {
                     _player.AddScore(15);

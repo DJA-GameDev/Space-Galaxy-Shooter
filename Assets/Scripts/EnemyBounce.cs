@@ -114,10 +114,15 @@ public class EnemyBounce : MonoBehaviour
             }
         }
 
-        if (other.tag == "Laser" || other.tag == "SuperLaser")
+        if (other.tag == "Laser")
         {
             Laser laser = other.transform.GetComponent<Laser>();
             
+            if (laser.IsEnemyLaser() == true)
+            {
+                return;
+            }
+
             _enemyShieldVisualizer.SetActive(false);
             StartCoroutine(DamageDelay());
 
@@ -144,16 +149,12 @@ public class EnemyBounce : MonoBehaviour
             }
         }
 
-        if (other.tag == "Missile")
+        if (other.tag == "SuperLaser")
         {
-            HomingMissile missile = other.transform.GetComponent<HomingMissile>();
+            Laser laser = other.transform.GetComponent<Laser>();
 
+            _enemyShieldVisualizer.SetActive(false);
             _isEnemyAlive = false;
-
-            if (other.tag == "Missile")
-            {
-                Destroy(other.gameObject);
-            }
 
             if (_player != null)
             {
@@ -166,6 +167,35 @@ public class EnemyBounce : MonoBehaviour
             _audioSource.Play();
             Destroy(GetComponent<Collider2D>());
             Destroy(this.gameObject, 2.5f);
+        }
+
+        if (other.tag == "Missile")
+        {
+            HomingMissile missile = other.transform.GetComponent<HomingMissile>();
+
+            _enemyShieldVisualizer.SetActive(false);
+            StartCoroutine(DamageDelay());
+
+            if (other.tag == "Missile")
+            {
+                Destroy(other.gameObject);
+            }
+
+            if (_player != null)
+            {
+                _player.AddScore(10);
+                _player.EnemyKillCount();
+            }
+
+            if (_isVulnerable == true)
+            {
+                _isEnemyAlive = false;
+                _anim.SetTrigger("OnEnemyDeath");
+                _speed = 0;
+                _audioSource.Play();
+                Destroy(GetComponent<Collider2D>());
+                Destroy(this.gameObject, 2.5f);
+            }
         }
     }
 

@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class SpawnManager : MonoBehaviour
 {
@@ -19,7 +21,6 @@ public class SpawnManager : MonoBehaviour
     private bool _stopSpawning = false;
 
     // Start is called before the first frame update
-
     public void StartSpawning()
     {
         _spawnWaveOne = true;
@@ -49,7 +50,7 @@ public class SpawnManager : MonoBehaviour
 
         while (_stopSpawning == false && _spawnWaveThree == true)
         {
-            int randomEnemy = Random.Range(0, 4);
+            int randomEnemy = Random.Range(0, 5);
             Vector3 posToSpawn = new Vector3(Random.Range(-8.0f, 8.0f), 7, 0);
             GameObject newEnemy = Instantiate(_enemyType[randomEnemy], posToSpawn, Quaternion.identity);
             newEnemy.transform.parent = _enemyContainer.transform;
@@ -63,14 +64,26 @@ public class SpawnManager : MonoBehaviour
         while (_stopSpawning == false)
         {
             Vector3 posToSpawn = new Vector3(Random.Range(-8.0f, 8.0f), 7, 0);
-            int _randomPowerup = Random.Range(0, 8);
-            if (_randomPowerup >= 5)
+            int randomRoll = Random.Range(0, 100);
+            int randomPowerup;
+            if (randomRoll <= 80)
             {
-                _randomPowerup = Random.Range(0, 8);
+                randomPowerup = Random.Range(0, 5);
+                Instantiate(powerups[randomPowerup], posToSpawn, Quaternion.identity);
             }
-            Instantiate(powerups[_randomPowerup], posToSpawn, Quaternion.identity);
+            else if (randomRoll > 80)
+            {
+                randomPowerup = Random.Range(5, 8);
+                Instantiate(powerups[randomPowerup], posToSpawn, Quaternion.identity);
+            }
             yield return new WaitForSeconds(Random.Range(5.0f, 8.0f));
         }
+    }
+
+    public void EmergencyAmmoSpawn()
+    {
+        Vector3 ammoSpawn = new Vector3(Random.Range(-8.0f, 8.0f), 7, 0);
+        Instantiate(powerups[3], ammoSpawn, Quaternion.identity);
     }
 
     public void WaveTwo()
@@ -97,7 +110,7 @@ public class SpawnManager : MonoBehaviour
 
     IEnumerator SpawnBossRoutine()
     {
-        yield return new WaitForSeconds(3.0f);
+        yield return new WaitForSeconds(5.0f);
 
         if (_spawnBoss == true)
         {
@@ -111,4 +124,10 @@ public class SpawnManager : MonoBehaviour
     {
         _stopSpawning = true;
     }
+
+    public void OnBossDeath()
+    {
+        _stopSpawning = true;
+    }
+    
 }
