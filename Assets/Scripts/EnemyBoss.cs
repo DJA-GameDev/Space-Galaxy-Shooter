@@ -65,6 +65,7 @@ public class EnemyBoss : MonoBehaviour
         _bossLifebar = GetComponentInChildren<BossLifeBar>();
 
         _bossLifebar.gameObject.SetActive(false);
+        _isSuperLaserActive = false;
 
         if (_bossLifebar == null)
         {
